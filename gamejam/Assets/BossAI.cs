@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BodyGuardAI : MonoBehaviour
+public class BossAI : MonoBehaviour
 {
     NavMeshAgent agent;
     float distanceToTarget = Mathf.Infinity;
-    public Transform target; 
+    public Transform target;
     public bool isDead = false;
     float Timetorotate = 4f;
     private float turnSpeed = 5f;
@@ -42,58 +42,23 @@ public class BodyGuardAI : MonoBehaviour
 
         view();
 
-        if (!isPatrolling)
-        {
-            ChaseTarget();
-        }
-        else
+        if(distanceToTarget >= agent.stoppingDistance)
         {
             patroling();
         }
-    }
-    void ChaseTarget()
-    {
-        //GetComponent<Animator>().SetTrigger("Attack");
-        //GetComponent<Animator>().SetBool("Walking", true);
-        Debug.Log("jaaaaa");
-        playerLastPosition = Vector3.zero;
-        playerNear = false;
-
-        if (!caughtplayer)
+        if (distanceToTarget <= agent.stoppingDistance)
         {
-            Move(9);
-            agent.SetDestination(target.position);
-        }
-        if(agent.remainingDistance <= agent.stoppingDistance)
-        {
-            caughtplayer = true;
-            if(waitTime <= 0 && caughtplayer && Vector3.Distance(transform.position, GameObject.FindGameObjectWithTag("Player").transform.position)>= 6f)
-            {
-                isPatrolling = true;
-                playerNear = false;
-                Move(6);
-                waitTime = 4;
-                Timetorotate = turnSpeed;
-                agent.SetDestination(waypoints[waypointIndex].position);
-            }
-            else
-            {
-                if(waitTime <= 0 && caughtplayer && Vector3.Distance(transform.position, GameObject.FindGameObjectWithTag("Player").transform.position) >= 2.5f)
-                {
-                    Stop();
-                    waitTime -= Time.deltaTime;
-                    AttackTarget();
-                }
-            }
+            AttackTarget();
         }
     }
+   
 
     void AttackTarget()
     {
         FaceTarget();
         if (agent.remainingDistance < agent.stoppingDistance)
         {
-           //ga naar het game over scherm
+            //ga naar het game over scherm
         }
     }
     private void Stop()
@@ -119,9 +84,9 @@ public class BodyGuardAI : MonoBehaviour
         {
             Transform target = targetinrange[i].transform;
             Vector3 dirToPlayer = (target.position - transform.position).normalized;
-            if(Vector3.Angle(transform.forward, dirToPlayer)< viewangle / 2)
+            if (Vector3.Angle(transform.forward, dirToPlayer) < viewangle / 2)
             {
-                if(!Physics.Raycast(transform.position, dirToPlayer, distanceToTarget, obstacleMask))
+                if (!Physics.Raycast(transform.position, dirToPlayer, distanceToTarget, obstacleMask))
                 {
                     B_playerInRange = true;
                     isPatrolling = false;
@@ -131,7 +96,7 @@ public class BodyGuardAI : MonoBehaviour
                     B_playerInRange = false;
                 }
             }
-            if(Vector3.Distance(transform.position, target.position)> viewRadius)
+            if (Vector3.Distance(transform.position, target.position) > viewRadius)
             {
                 B_playerInRange = false;
             }
@@ -161,9 +126,9 @@ public class BodyGuardAI : MonoBehaviour
             playerNear = false;
             playerLastPosition = Vector3.zero;
             agent.SetDestination(waypoints[waypointIndex].position);
-            if(agent.remainingDistance <= agent.stoppingDistance)
+            if (agent.remainingDistance <= agent.stoppingDistance)
             {
-                if(waitTime <= 0)
+                if (waitTime <= 0)
                 {
                     nextWaypoint();
                     Move(6);
@@ -180,6 +145,6 @@ public class BodyGuardAI : MonoBehaviour
     {
         Vector3 direction = (target.position - transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, direction.y, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation,  1);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 1);
     }
 }
